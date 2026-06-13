@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useCart } from '../../hooks/useCart'
+import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../hooks/useAuth'
 
 export default function Layout({ children, showAdmin = false }) {

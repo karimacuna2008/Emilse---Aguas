@@ -10,7 +10,7 @@ const FILTERS = [
 ]
 
 export default function AdminOrdersPage() {
-  const { orders, loading, deliver, cancel } = useOrders()
+  const { orders, loading, error, deliver, cancel } = useOrders()
   const [filter, setFilter] = useState('pending')
 
   const pendingCount = orders.filter(o => o.status === 'pending').length
@@ -22,6 +22,11 @@ export default function AdminOrdersPage() {
       <h1 className="text-2xl font-bold text-brand-900">
         Pedidos {pendingCount > 0 && <span className="text-base bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full ml-1">{pendingCount}</span>}
       </h1>
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {FILTERS.map(f => (
           <button key={f.value} onClick={() => setFilter(f.value)}

@@ -4,7 +4,7 @@ import ProductList from '../components/admin/ProductList'
 import ProductForm from '../components/admin/ProductForm'
 
 export default function AdminProductsPage() {
-  const { products, loading, saveProduct, toggleActive, addStock } = useAdminProducts()
+  const { products, loading, error, saveProduct, toggleActive, addStock } = useAdminProducts()
   const [editing, setEditing] = useState(null)   // null | {} | product
 
   if (loading) return <div className="text-center py-12 text-gray-400">Cargando...</div>
@@ -21,6 +21,12 @@ export default function AdminProductsPage() {
         )}
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
+
       {editing !== null && (
         <div className="bg-surface-soft border border-surface-border rounded-2xl p-4">
           <h2 className="font-semibold text-brand-900 mb-3">
@@ -28,7 +34,7 @@ export default function AdminProductsPage() {
           </h2>
           <ProductForm
             product={editing.id ? editing : null}
-            onSave={async p => { await saveProduct(p); setEditing(null) }}
+            onSave={async p => { const { error: err } = await saveProduct(p); if (!err) setEditing(null) }}
             onCancel={() => setEditing(null)}
           />
         </div>

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const KEY = 'emi_cart'
 
-export function useCart() {
+const CartContext = createContext(null)
+
+export function CartProvider({ children }) {
   const [items, setItems] = useState(() => {
     try { return JSON.parse(localStorage.getItem(KEY)) ?? [] }
     catch { return [] }
@@ -47,5 +49,13 @@ export function useCart() {
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
-  return { items, total, addItem, removeItem, updateQuantity, clearCart }
+  const value = { items, total, addItem, removeItem, updateQuantity, clearCart }
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext)
+  if (!ctx) throw new Error('useCart debe usarse dentro de <CartProvider>')
+  return ctx
 }

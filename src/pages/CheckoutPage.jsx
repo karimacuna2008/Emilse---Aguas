@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useCart } from '../hooks/useCart'
+import { useCart } from '../context/CartContext'
 import CheckoutForm from '../components/store/CheckoutForm'
 import OrderConfirmation from '../components/store/OrderConfirmation'
 import Cart from '../components/store/Cart'

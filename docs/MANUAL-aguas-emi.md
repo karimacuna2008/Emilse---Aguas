@@ -1,7 +1,7 @@
 # Manual de Trabajo — Aguas de Emi
 
 **Fecha:** 2026-06-13
-**Estado:** P0 (seguridad) aplicado y verificado en prod (2026-06-13, commit `323760c`) · P1-P4 pendientes
+**Estado:** P0 (seguridad) ✅ y P1 (datos/arquitectura) ✅ aplicados y verificados en prod (2026-06-13) · P2-P4 pendientes
 **Autor del análisis:** Claude (revisión en 2 pasadas + cruce con specs)
 
 ---
@@ -17,7 +17,7 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 **Convenciones:**
 - 🔴 Crítico · 🟠 Importante · 🟡 Menor · ⭐ Recomendación mía · 🎨 Requiere diseño visual (visual companion, próxima sesión) · ❓ Decisión abierta.
 - "Pedido abierto" = pedido con `status = 'pending'` (aún no entregado ni cancelado).
-- **P0 (seguridad) ya está implementado y verificado en producción** (2026-06-13, commit `323760c`). El resto (P1-P4) sigue pendiente. Estado por fase en §6.
+- **P0 (seguridad) y P1 (datos/arquitectura) ya están implementados y verificados en producción** (2026-06-13). El resto (P2-P4) sigue pendiente. Estado por fase en §6.
 - El orden recomendado de trabajo está en la **§6 Roadmap**. Léelo antes de empezar a picar.
 
 ### ♻️ Trabajar entre sesiones — cuándo hacer `/clear` y qué releer (optimizar tokens)
@@ -72,7 +72,7 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 
 ## 2. Hallazgos del análisis (priorizados)
 
-> **Estado (2026-06-13):** los hallazgos de seguridad **#1, #2, #4, #5 → RESUELTOS y verificados en producción** (commit `323760c`; migraciones `005_security_hardening`, `006_harden_functions`, `007_storage_policies` + frontend). Verificado: `pg_policies` sin políticas públicas y `curl` anónimo a `orders` → `[]`. Siguen abiertos **#3** y **#6** (→ P1) y los 🟡 menores.
+> **Estado (2026-06-13):** seguridad **#1, #2, #4, #5 → RESUELTOS** (P0, commit `323760c`; migraciones `005`/`006`/`007` + frontend; `pg_policies` sin políticas públicas y `curl` anónimo a `orders` → `[]`). **#3 (carrito fragmentado) y #6 (errores silenciados en hooks admin) → RESUELTOS en P1** (`CartContext` + manejo de errores). Quedan solo los 🟡 menores.
 
 ### 🔴 CRÍTICO — seguridad (atender ANTES de features nuevas)
 
@@ -252,10 +252,11 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 - ✅ `search_path` pineado (#5) — migración `006` (+ guard `add_stock p_units>0`). ✅ Policy de Storage + manejo de error de subida (#4) — migración `007` + `ProductForm`.
 - *Verificado:* `pg_policies` sin políticas públicas; `curl` anónimo a `/rest/v1/orders` → `[]`. Frontend desplegado (Vercel).
 
-**P1 — Fundamentos de datos y arquitectura**
-- Migración de esquema: `category`, `delivered_at`, `total_personalizado` (+ índice phone).
-- Refactor carrito → `CartContext` (#3). Manejo de errores en hooks (#6).
-- *Dependencias:* P0 idealmente antes. Habilita todo lo demás.
+**P1 — Fundamentos de datos y arquitectura ✅ HECHO y verificado en prod (2026-06-13)**
+- ✅ Migración `008_features_schema.sql` aplicada en Supabase (vía Management API): `products.category`, `orders.delivered_at`, `orders.total_personalizado` (default FALSE) + índice `idx_orders_customer_phone`. Verificado con `information_schema` + `pg_indexes`.
+- ✅ Carrito centralizado en `src/context/CartContext.jsx` (`<CartProvider>` en `App`); los 3 consumidores (Layout/StorePage/CheckoutPage) comparten estado → arregla #3 (badge). Hook viejo `hooks/useCart.js` eliminado; test migrado a `context/CartContext.test.jsx` + test de integración del badge.
+- ✅ Manejo de errores (#6): `useAdminProducts` y `useOrders` exponen `error`; banners en `AdminProductsPage`/`AdminOrdersPage`; el form de producto no se cierra si falla el guardado.
+- *Verificado:* 19/19 tests (`vitest run`) + `vite build` OK. Nota: `delivered_at` se poblará cuando P3 implemente `marcar_entregado` (hoy `deliver` sigue con `UPDATE` directo).
 
 **P2 — Tienda (cliente)** 🎨
 - Vistas Tarjetas/Lista + modal de cantidad + toggle persistente.

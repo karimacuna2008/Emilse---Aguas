@@ -1,5 +1,5 @@
 import { useProducts } from '../hooks/useProducts'
-import { useCart } from '../hooks/useCart'
+import { useCart } from '../context/CartContext'
 import ProductGrid from '../components/store/ProductGrid'
 import WhatsAppLink from '../components/shared/WhatsAppLink'
 import Layout from '../components/shared/Layout'
