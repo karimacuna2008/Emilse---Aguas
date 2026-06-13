@@ -13,12 +13,9 @@ export default function OrderStatusPage() {
   useEffect(() => {
     if (!code) return
     supabase
-      .from('orders')
-      .select('*, order_items(*, products(name))')
-      .eq('order_number', code.toUpperCase())
-      .single()
+      .rpc('consultar_pedido', { p_order_number: code.toUpperCase() })
       .then(({ data, error }) => {
-        if (error || !data) setNotFound(true)
+        if (error || !data || data.error) setNotFound(true)
         else setOrder(data)
         setLoading(false)
       })

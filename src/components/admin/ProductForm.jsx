@@ -8,17 +8,24 @@ export default function ProductForm({ product, onSave, onCancel }) {
   const [stock, setStock]     = useState(product?.stock ?? 0)
   const [file, setFile]       = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState(null)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
       let image_url = product?.image_url ?? null
 
       if (file) {
         const ext  = file.name.split('.').pop()
         const path = `products/${crypto.randomUUID()}.${ext}`
-        await supabase.storage.from('product-images').upload(path, file)
+        const { error: upErr } = await supabase.storage
+          .from('product-images').upload(path, file)
+        if (upErr) {
+          setError('No se pudo subir la imagen: ' + upErr.message)
+          return
+        }
         const { data } = supabase.storage.from('product-images').getPublicUrl(path)
         image_url = data.publicUrl
       }
@@ -31,6 +38,8 @@ export default function ProductForm({ product, onSave, onCancel }) {
         image_url,
         active: product?.active ?? true,
       })
+    } catch (err) {
+      setError('No se pudo guardar: ' + (err?.message ?? 'error desconocido'))
     } finally {
       setLoading(false)
     }
@@ -52,6 +61,11 @@ export default function ProductForm({ product, onSave, onCancel }) {
       </div>
       <input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])}
         className="text-sm text-gray-500" />
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+          {error}
+        </p>
+      )}
       <div className="flex gap-3">
         <button type="submit" disabled={loading}
           className="flex-1 bg-brand-700 hover:bg-brand-900 disabled:opacity-50 text-white py-2.5 rounded-xl font-semibold">
