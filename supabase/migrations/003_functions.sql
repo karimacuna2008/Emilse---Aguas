@@ -92,6 +92,13 @@ BEGIN
     RETURN jsonb_build_object('error', 'order_not_pending');
   END IF;
 
+  -- Lock affected product rows before restoring stock
+  PERFORM p.id
+  FROM products p
+  JOIN order_items oi ON oi.product_id = p.id
+  WHERE oi.order_id = p_order_id
+  FOR UPDATE;
+
   -- Restore stock
   UPDATE products p
   SET stock = p.stock + oi.quantity
