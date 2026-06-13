@@ -53,7 +53,7 @@ export default function Layout({ children, showAdmin = false }) {
                 <span className="text-xs font-semibold">Carrito</span>
               </Link>
 
-              <Link to="/admin/login" className={navClass('/admin')}>
+              <Link to="/admin/login" className={navClass('/admin/login')}>
                 <span className="text-2xl">👩‍💼</span>
                 <span className="text-xs font-semibold">Admin</span>
               </Link>
