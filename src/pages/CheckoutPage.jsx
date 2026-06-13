@@ -5,6 +5,7 @@ import { useCart } from '../hooks/useCart'
 import CheckoutForm from '../components/store/CheckoutForm'
 import OrderConfirmation from '../components/store/OrderConfirmation'
 import Cart from '../components/store/Cart'
+import Layout from '../components/shared/Layout'
 
 export default function CheckoutPage() {
   const { items, total, removeItem, updateQuantity, clearCart } = useCart()
@@ -42,42 +43,46 @@ export default function CheckoutPage() {
 
   if (step === 'done') {
     return (
-      <div className="max-w-md mx-auto px-4 py-8">
-        <OrderConfirmation
-          orderNumber={orderNumber}
-          onTrack={() => navigate(`/pedido/${orderNumber}`)}
-        />
-      </div>
+      <Layout>
+        <div className="max-w-md mx-auto px-4 py-8">
+          <OrderConfirmation
+            orderNumber={orderNumber}
+            onTrack={() => navigate(`/pedido/${orderNumber}`)}
+          />
+        </div>
+      </Layout>
     )
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-8 flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-brand-900">
-        {step === 'cart' ? '🛒 Tu carrito' : '📋 Tus datos'}
-      </h1>
+    <Layout>
+      <div className="max-w-md mx-auto px-4 py-8 flex flex-col gap-6">
+        <h1 className="text-2xl font-bold text-brand-900">
+          {step === 'cart' ? '🛒 Tu carrito' : '📋 Tus datos'}
+        </h1>
 
-      {step === 'cart' && (
-        <>
-          <Cart
-            items={items} total={total}
-            onRemove={removeItem} onUpdateQty={updateQuantity}
-            onCheckout={() => setStep('form')}
-          />
-          <button onClick={() => navigate('/')} className="text-brand-700 underline text-sm text-center">
-            ← Seguir comprando
-          </button>
-        </>
-      )}
+        {step === 'cart' && (
+          <>
+            <Cart
+              items={items} total={total}
+              onRemove={removeItem} onUpdateQty={updateQuantity}
+              onCheckout={() => setStep('form')}
+            />
+            <button onClick={() => navigate('/')} className="text-brand-700 underline text-sm text-center">
+              ← Seguir comprando
+            </button>
+          </>
+        )}
 
-      {step === 'form' && (
-        <>
-          <CheckoutForm onSubmit={handleSubmit} loading={loading} raceError={raceError} />
-          <button onClick={() => setStep('cart')} className="text-brand-700 underline text-sm text-center">
-            ← Volver al carrito
-          </button>
-        </>
-      )}
-    </div>
+        {step === 'form' && (
+          <>
+            <CheckoutForm onSubmit={handleSubmit} loading={loading} raceError={raceError} />
+            <button onClick={() => setStep('cart')} className="text-brand-700 underline text-sm text-center">
+              ← Volver al carrito
+            </button>
+          </>
+        )}
+      </div>
+    </Layout>
   )
 }
