@@ -12,25 +12,28 @@ export default function ProductForm({ product, onSave, onCancel }) {
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
-    let image_url = product?.image_url ?? null
+    try {
+      let image_url = product?.image_url ?? null
 
-    if (file) {
-      const ext  = file.name.split('.').pop()
-      const path = `products/${Date.now()}.${ext}`
-      await supabase.storage.from('product-images').upload(path, file)
-      const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-      image_url = data.publicUrl
+      if (file) {
+        const ext  = file.name.split('.').pop()
+        const path = `products/${crypto.randomUUID()}.${ext}`
+        await supabase.storage.from('product-images').upload(path, file)
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+        image_url = data.publicUrl
+      }
+
+      await onSave({
+        ...(product?.id ? { id: product.id } : {}),
+        name, description: desc,
+        price: parseFloat(price),
+        stock: parseInt(stock, 10),
+        image_url,
+        active: product?.active ?? true,
+      })
+    } finally {
+      setLoading(false)
     }
-
-    await onSave({
-      ...(product?.id ? { id: product.id } : {}),
-      name, description: desc,
-      price: parseFloat(price),
-      stock: parseInt(stock, 10),
-      image_url,
-      active: product?.active ?? true,
-    })
-    setLoading(false)
   }
 
   return (
