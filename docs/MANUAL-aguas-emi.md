@@ -1,7 +1,7 @@
 # Manual de Trabajo — Aguas de Emi
 
 **Fecha:** 2026-06-13
-**Estado:** P0 (seguridad) ✅ y P1 (datos/arquitectura) ✅ aplicados y verificados en prod (2026-06-13) · P2-P4 pendientes
+**Estado:** P0 ✅ y P1 ✅ en prod (2026-06-13) · **P2 (tienda): diseño ✅ aprobado** — spec en `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`, falta implementar · P3-P4 pendientes
 **Autor del análisis:** Claude (revisión en 2 pasadas + cruce con specs)
 
 ---
@@ -258,11 +258,15 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 - ✅ Manejo de errores (#6): `useAdminProducts` y `useOrders` exponen `error`; banners en `AdminProductsPage`/`AdminOrdersPage`; el form de producto no se cierra si falla el guardado.
 - *Verificado:* 19/19 tests (`vitest run`) + `vite build` OK. Nota: `delivered_at` se poblará cuando P3 implemente `marcar_entregado` (hoy `deliver` sigue con `UPDATE` directo).
 
-**P2 — Tienda (cliente)** 🎨
-- Vistas Tarjetas/Lista + modal de cantidad + toggle persistente.
-- **Rediseño de navegación** (decidido en §7): repensar la barra inferior junto con las vistas nuevas; integrar el arreglo del FAB de WhatsApp aquí.
-- Teléfono: validación de formato + identidad. Detección de pedido abierto (elige sumar/nuevo) con `buscar_pedido_abierto` + `agregar_a_pedido`.
-- *Dependencias:* P1 (CartContext, RPCs). Visual companion antes de implementar.
+**P2 — Tienda (cliente)** 🎨 — **DISEÑO ✅ aprobado (2026-06-13)**
+- **Spec (fuente de verdad):** `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`. Siguiente: plan (`writing-plans`) → implementar. Migración nueva = `009`.
+- Catálogo: Lista (principal) / Tarjetas (toggle persistente) + buscador + chips de categoría + orden alfabético + estado "agregado" verde. Modal de cantidad = hoja inferior.
+- Navegación nueva: 4 tabs (Tienda · Carrito · Mi pedido · Ayuda); Admin discreto en header; WhatsApp/Ayuda sin FAB suelto.
+- Carrito en 2 pantallas (lista editable → datos + fecha). Teléfono: 10 dígitos.
+- **Fecha de entrega** obligatoria (`orders.delivery_date`). **Config editable** (`app_settings`): días hábiles + corte de creación 20:00 + corte de cancelación 06:00 (la **UI de edición es P3**; en P2 solo seed/defaults). Nada de días/horas hard-codeado.
+- Detección de pedido abierto **solo mismo día** (`buscar_pedido_abierto(phone,date)` + `agregar_a_pedido`).
+- Mi pedido: `listar_pedidos_activos(phone)` (todos los activos) → detalle con ayuda (WhatsApp + ID) y cancelar cliente (`cancelar_pedido_cliente`).
+- *Dependencias:* P1 (CartContext, RPCs).
 
 **P3 — Admin: gestión de pedidos** 🎨
 - Pedidos como tarjetas → panel de edición (agregar/quitar/cancelar/entregar) con sus RPC.

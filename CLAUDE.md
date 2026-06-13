@@ -46,6 +46,35 @@ Para cada función o método (nativo o de librería), detalla:
 
 ## ✅ ACERCA DE ESTE PROYECTO
 
-[Agrega contexto específico del proyecto aquí]
+En el .env.local esta el token de supabase para que hagas los edits automaticamente en las tablas.
+
+---
+
+## 🔄 PRÓXIMA SESIÓN — QUÉ LEER AL RETOMAR
+
+> Esta sección la mantiene Claude al día. Indica qué leer al iniciar una sesión nueva para trabajar, **sin releer todo el código**.
+
+**Estás en: P2 (Tienda/cliente) — diseño ✅ aprobado y commiteado; falta el plan de implementación + implementar.**
+
+Lee en este orden:
+1. `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md` — **spec aprobado de P2 (fuente de verdad).**
+2. `docs/MANUAL-aguas-emi.md` — §6 (roadmap) y §8 (mapa de archivos). La memoria del proyecto se auto-carga.
+3. Archivos de P2 a tocar (no releas de más):
+   - `src/pages/StorePage.jsx`, `src/pages/CheckoutPage.jsx`
+   - `src/components/store/` (ProductGrid, ProductCard, Cart, CheckoutForm, …)
+   - `src/components/shared/Layout.jsx`, `src/components/shared/WhatsAppLink.jsx`
+   - `src/context/CartContext.jsx`, `src/hooks/useProducts.js`, `src/App.jsx`
+   - `supabase/migrations/` (última migración, para crear la `009`)
+
+**Siguiente paso:** crear el plan de implementación con la skill `writing-plans` a partir del spec; luego implementar respetando la puerta de validación.
+
+---
+
+## 🧹 ANTES DE RECOMENDAR /clear
+
+Cuando llegues a un punto limpio y vayas a recomendar `/clear` y darme la frase de arranque:
+- Verifica primero que **todo esté guardado** (código/spec commiteado, migraciones aplicadas si hubo, memoria y manual al día).
+- **Si la próxima sesión necesitará leer archivos DISTINTOS** a los de la sección "🔄 PRÓXIMA SESIÓN", **edita esa sección** de este `CLAUDE.md` para que apunte a los correctos (y commitea el cambio).
+- **Si leerá los mismos**, déjala como está.
 
 ---
