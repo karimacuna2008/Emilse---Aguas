@@ -19,6 +19,10 @@ dist-ssr
 .env.staging
 .env.*.local
 
+# Tool artifacts
+.playwright-mcp/
+.superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
