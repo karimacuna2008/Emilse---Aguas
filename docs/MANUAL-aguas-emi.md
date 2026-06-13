@@ -1,7 +1,7 @@
 # Manual de Trabajo — Aguas de Emi
 
 **Fecha:** 2026-06-13
-**Estado:** Borrador de trabajo (handoff)
+**Estado:** P0 (seguridad) aplicado y verificado en prod (2026-06-13, commit `323760c`) · P1-P4 pendientes
 **Autor del análisis:** Claude (revisión en 2 pasadas + cruce con specs)
 
 ---
@@ -17,8 +17,37 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 **Convenciones:**
 - 🔴 Crítico · 🟠 Importante · 🟡 Menor · ⭐ Recomendación mía · 🎨 Requiere diseño visual (visual companion, próxima sesión) · ❓ Decisión abierta.
 - "Pedido abierto" = pedido con `status = 'pending'` (aún no entregado ni cancelado).
-- Nada de lo aquí escrito está implementado todavía. **No se ha tocado código de la app.**
+- **P0 (seguridad) ya está implementado y verificado en producción** (2026-06-13, commit `323760c`). El resto (P1-P4) sigue pendiente. Estado por fase en §6.
 - El orden recomendado de trabajo está en la **§6 Roadmap**. Léelo antes de empezar a picar.
+
+### ♻️ Trabajar entre sesiones — cuándo hacer `/clear` y qué releer (optimizar tokens)
+
+**Sí: conviene `/clear` al terminar cada fase o ronda de cambios.** Empezar fresco evita arrastrar contexto viejo que ya no sirve y que encarece cada mensaje. El "estado durable" que sobrevive al `/clear` es **(1) la memoria del agente** (se auto-carga) y **(2) este manual** — así que no se pierde nada *si antes guardaste todo*.
+
+**✅ Checklist ANTES de hacer `/clear`** (si falta algo, NO limpies — se perdería):
+- [ ] Código **commiteado** (y pusheado si aplica).
+- [ ] Migraciones SQL **aplicadas en Supabase** (si la fase tuvo).
+- [ ] **§6 Roadmap** actualizado (fase marcada ✅) y **§7 Decisiones** si se cerró alguna.
+- [ ] **Memoria del proyecto** actualizada (pídelo: *"actualiza la memoria"*).
+- [ ] Sin preguntas abiertas que solo existan en el chat.
+
+> Regla simple: `/clear` **solo en un punto limpio** = trabajo commiteado + manual y memoria al día. A mitad de una fase con cambios sin guardar, **no**.
+
+**📖 Al RETOMAR (sesión nueva), qué releer — y qué NO:**
+1. **Siempre:** este manual (sobre todo §6 fase actual, §7 decisiones, §2 estado). La memoria del proyecto se auto-carga.
+2. **Solo los archivos de la fase** que vas a tocar, según la **§8 (Mapa de archivos)**. *No releas todo el código* — eso es lo que desperdicia tokens.
+3. **No** hace falta releer fases ya terminadas ni código no relacionado.
+
+**Frase de arranque sugerida** tras `/clear`:
+> *"Lee `docs/MANUAL-aguas-emi.md` y continuemos con la **fase PX**. Relee solo los archivos de esa fase (§8)."*
+
+**Atajo — qué releer por fase:**
+| Fase | Archivos a releer al retomar |
+|---|---|
+| P1 | `hooks/useCart.js`, `App.jsx`, `Layout.jsx`, `StorePage.jsx`, `CheckoutPage.jsx`, `useAdminProducts.js`, `useOrders.js` + la nueva migración de esquema |
+| P2 🎨 | `StorePage.jsx`, `ProductGrid.jsx`, `ProductCard.jsx`, `CheckoutPage.jsx`, `Layout.jsx` (nav) + RPCs `buscar_pedido_abierto` / `agregar_a_pedido` |
+| P3 🎨 | `AdminOrdersPage.jsx`, `OrderCard.jsx`, `OrderList.jsx`, `useOrders.js` + RPCs de edición |
+| P4 🎨 | nueva `AdminReportsPage.jsx` + RPC/vistas de reporte |
 
 ---
 
@@ -42,6 +71,8 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 ---
 
 ## 2. Hallazgos del análisis (priorizados)
+
+> **Estado (2026-06-13):** los hallazgos de seguridad **#1, #2, #4, #5 → RESUELTOS y verificados en producción** (commit `323760c`; migraciones `005_security_hardening`, `006_harden_functions`, `007_storage_policies` + frontend). Verificado: `pg_policies` sin políticas públicas y `curl` anónimo a `orders` → `[]`. Siguen abiertos **#3** y **#6** (→ P1) y los 🟡 menores.
 
 ### 🔴 CRÍTICO — seguridad (atender ANTES de features nuevas)
 
@@ -81,7 +112,7 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 ### 🟡 MENORES / pulido
 - **WhatsApp FAB** (`bottom-6 right-6`) se traslapa con la barra inferior (`h-16`) → subirlo a `bottom-20`.
 - **Sin tests del camino crítico:** CheckoutPage + RPC, manejo `out_of_stock`, OrderStatus, admin, funciones SQL. (Parte fue decisión consciente del spec, pero el checkout no tiene test.)
-- **Validaciones de borde en BD:** `add_stock` no valida `p_units > 0`; `crear_pedido` no rechaza items vacíos; `customer_phone` puede llegar vacío (la columna es `NOT NULL` pero acepta `''`).
+- **Validaciones de borde en BD:** `crear_pedido` no rechaza items vacíos; `customer_phone` puede llegar vacío (la columna es `NOT NULL` pero acepta `''`). *(El guard `add_stock p_units > 0` ya se añadió en P0 / migración `006`.)*
 - **Sin ruta 404 (`path="*"`) ni ErrorBoundary** → ruta inexistente = pantalla en blanco.
 - **Tipo de `price`/`total` inconsistente** (a veces `Number(x).toFixed`, a veces `x.toFixed`). Unificar.
 - **Falta `README.md`.** Docs (specs/plan) quedaron en React 18/Vite 5/router 6; la app usa 19/8/7 (solo anotado en memoria).
@@ -216,10 +247,10 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 
 > Cada fase es candidata a su propio ciclo brainstorming → spec → plan → implementación. Las marcadas 🎨 necesitan el visual companion primero.
 
-**P0 — Seguridad (bloqueante, hacer primero)**
-- Cerrar RLS de `orders`/`order_items` (#1, #2) + RPC `consultar_pedido`.
-- Pinear `search_path` (#5). Policy de Storage + manejo de error de subida (#4).
-- *Dependencias:* ninguna. *Riesgo:* bajo, alto impacto.
+**P0 — Seguridad ✅ HECHO y verificado en prod (2026-06-13, commit `323760c`)**
+- ✅ Cerrado RLS de `orders`/`order_items` (#1, #2) + RPC `consultar_pedido` (sin teléfono) — migración `005`.
+- ✅ `search_path` pineado (#5) — migración `006` (+ guard `add_stock p_units>0`). ✅ Policy de Storage + manejo de error de subida (#4) — migración `007` + `ProductForm`.
+- *Verificado:* `pg_policies` sin políticas públicas; `curl` anónimo a `/rest/v1/orders` → `[]`. Frontend desplegado (Vercel).
 
 **P1 — Fundamentos de datos y arquitectura**
 - Migración de esquema: `category`, `delivered_at`, `total_personalizado` (+ índice phone).
