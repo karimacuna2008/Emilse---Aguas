@@ -6,7 +6,16 @@ import Layout from '../components/shared/Layout'
 
 export default function StorePage() {
   const { products, loading, error } = useProducts()
-  const { addItem } = useCart()
+  const { items, addItem, updateQuantity } = useCart()
+
+  function getQuantity(productId) {
+    return items.find(i => i.product_id === productId)?.quantity ?? 0
+  }
+
+  function handleRemove(productId) {
+    const item = items.find(i => i.product_id === productId)
+    if (item) updateQuantity(productId, item.quantity - 1)
+  }
 
   return (
     <Layout>
@@ -16,8 +25,15 @@ export default function StorePage() {
           <p className="text-gray-500 text-sm mt-1">Agua fresca a domicilio</p>
         </div>
         {loading && <p className="text-center py-12 text-gray-400">Cargando productos...</p>}
-        {error  && <p className="text-center py-12 text-red-500">Error al cargar productos.</p>}
-        {!loading && !error && <ProductGrid products={products} onAdd={addItem} />}
+        {error   && <p className="text-center py-12 text-red-500">Error al cargar productos.</p>}
+        {!loading && !error && (
+          <ProductGrid
+            products={products}
+            onAdd={addItem}
+            onRemove={handleRemove}
+            getQuantity={getQuantity}
+          />
+        )}
       </div>
       <WhatsAppLink />
     </Layout>
