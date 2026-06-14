@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import StorePage         from './pages/StorePage'
 import CheckoutPage      from './pages/CheckoutPage'
+import MyOrdersPage      from './pages/MyOrdersPage'
 import OrderStatusPage   from './pages/OrderStatusPage'
 import AdminLoginPage    from './pages/AdminLoginPage'
 import AdminOrdersPage   from './pages/AdminOrdersPage'
@@ -16,6 +17,7 @@ export default function App() {
         <Routes>
           <Route path="/"                element={<StorePage />} />
           <Route path="/checkout"        element={<CheckoutPage />} />
+          <Route path="/mis-pedidos"     element={<MyOrdersPage />} />
           <Route path="/pedido/:code"    element={<OrderStatusPage />} />
           <Route path="/admin/login"     element={<AdminLoginPage />} />
           <Route path="/admin/pedidos"   element={
