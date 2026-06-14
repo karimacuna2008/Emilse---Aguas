@@ -16,7 +16,7 @@ describe('Cart', () => {
   it('calls onCheckout when button clicked', () => {
     const onCheckout = vi.fn()
     render(<Cart items={items} total={40} onRemove={vi.fn()} onUpdateQty={vi.fn()} onCheckout={onCheckout} />)
-    fireEvent.click(screen.getByRole('button', { name: /hacer pedido/i }))
+    fireEvent.click(screen.getByRole('button', { name: /continuar/i }))
     expect(onCheckout).toHaveBeenCalled()
   })
 })

@@ -37,7 +37,7 @@ export default function Cart({ items, total, onRemove, onUpdateQty, onCheckout }
         onClick={onCheckout}
         className="w-full bg-brand-700 hover:bg-brand-900 text-white font-semibold py-3 rounded-xl transition-colors"
       >
-        Hacer pedido →
+        Continuar →
       </button>
     </div>
   )
