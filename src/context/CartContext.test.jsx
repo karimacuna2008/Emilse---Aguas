@@ -66,4 +66,25 @@ describe('useCart', () => {
     fireEvent.click(screen.getByText('add'))
     expect(screen.getByTestId('badge')).toHaveTextContent('1')
   })
+
+  it('setItemQuantity adds product with absolute quantity if not present', () => {
+    const { result } = renderHook(() => useCart(), { wrapper: CartProvider })
+    act(() => result.current.setItemQuantity(p1, 3))
+    expect(result.current.items[0]).toMatchObject({ product_id: 'p1', quantity: 3 })
+  })
+
+  it('setItemQuantity overwrites quantity (not increments) if present', () => {
+    const { result } = renderHook(() => useCart(), { wrapper: CartProvider })
+    act(() => result.current.addItem(p1))
+    act(() => result.current.setItemQuantity(p1, 5))
+    expect(result.current.items[0].quantity).toBe(5)
+  })
+
+  it('setItemQuantity clamps to stock and removes on <= 0', () => {
+    const { result } = renderHook(() => useCart(), { wrapper: CartProvider })
+    act(() => result.current.setItemQuantity(p1, 999))
+    expect(result.current.items[0].quantity).toBe(10) // p1.stock = 10
+    act(() => result.current.setItemQuantity(p1, 0))
+    expect(result.current.items).toHaveLength(0)
+  })
 })

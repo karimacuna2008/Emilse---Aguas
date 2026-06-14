@@ -45,11 +45,26 @@ export function CartProvider({ children }) {
     ))
   }
 
+  function setItemQuantity(product, quantity) {
+    if (quantity <= 0) { removeItem(product.id); return }
+    setItems(prev => {
+      const q = Math.min(quantity, product.stock)
+      const exists = prev.find(i => i.product_id === product.id)
+      if (exists) {
+        return prev.map(i => i.product_id === product.id ? { ...i, quantity: q } : i)
+      }
+      return [...prev, {
+        product_id: product.id, name: product.name, price: product.price,
+        quantity: q, maxStock: product.stock,
+      }]
+    })
+  }
+
   function clearCart() { setItems([]) }
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
-  const value = { items, total, addItem, removeItem, updateQuantity, clearCart }
+  const value = { items, total, addItem, removeItem, updateQuantity, setItemQuantity, clearCart }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
