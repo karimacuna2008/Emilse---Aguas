@@ -54,19 +54,17 @@ En el .env.local esta el token de supabase para que hagas los edits automaticame
 
 > Esta sección la mantiene Claude al día. Indica qué leer al iniciar una sesión nueva para trabajar, **sin releer todo el código**.
 
-**Estás en: P2 (Tienda/cliente) — diseño ✅ aprobado y commiteado; falta el plan de implementación + implementar.**
+**Estás en: P2 (Tienda/cliente) — diseño ✅ + plan ✅ aprobados y commiteados; falta IMPLEMENTAR.** Rama de trabajo: **`feat/p2-tienda-cliente`** (asegúrate de estar en ella: `git checkout feat/p2-tienda-cliente`).
 
-Lee en este orden:
-1. `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md` — **spec aprobado de P2 (fuente de verdad).**
-2. `docs/MANUAL-aguas-emi.md` — §6 (roadmap) y §8 (mapa de archivos). La memoria del proyecto se auto-carga.
-3. Archivos de P2 a tocar (no releas de más):
-   - `src/pages/StorePage.jsx`, `src/pages/CheckoutPage.jsx`
-   - `src/components/store/` (ProductGrid, ProductCard, Cart, CheckoutForm, …)
-   - `src/components/shared/Layout.jsx`, `src/components/shared/WhatsAppLink.jsx`
-   - `src/context/CartContext.jsx`, `src/hooks/useProducts.js`, `src/App.jsx`
-   - `supabase/migrations/` (última migración, para crear la `009`)
+**Lee SOLO esto (el plan trae TODO el código inline — NO releas el `src/`):**
+1. `docs/superpowers/plans/2026-06-13-p2-tienda-cliente.md` — **plan de implementación (fuente de verdad para ejecutar).** Trae, por tarea, el test y la implementación completos.
+2. (Solo si necesitas contexto de decisiones) `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`. La memoria del proyecto se auto-carga.
 
-**Siguiente paso:** crear el plan de implementación con la skill `writing-plans` a partir del spec; luego implementar respetando la puerta de validación.
+**Siguiente paso:** ejecutar el plan con la skill `superpowers:subagent-driven-development` (o `executing-plans`), tarea por tarea, **sin releer el código fuente** (el plan ya lo contiene).
+
+**Cadencia acordada:** "dejarlo correr" — las fases de código (rama feature, reversible) corren de corrido con la doble revisión por tarea como control. **PARAR siempre antes de tocar producción.**
+
+**⚠️ Cutover de despliegue (crítico):** la migración `009` hace `DROP` del `crear_pedido` de 4 args y pone `delivery_date NOT NULL` → **rompería el checkout en vivo si se aplica antes** de desplegar el frontend nuevo (solo hay un proyecto Supabase, sin staging). Por eso: escribir el archivo de migración (Tarea 1.1) ahora, desarrollar todo el frontend con tests mockeados (Fases 2-4), y **aplicar la migración a prod JUNTO con el deploy del frontend al final** (Tareas 1.2 + 5.4), en una sola ventana y **con aprobación explícita**.
 
 ---
 
