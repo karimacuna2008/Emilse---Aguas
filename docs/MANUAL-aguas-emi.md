@@ -1,7 +1,7 @@
 # Manual de Trabajo — Aguas de Emi
 
 **Fecha:** 2026-06-13
-**Estado:** P0 ✅ y P1 ✅ en prod (2026-06-13) · **P2 (tienda): diseño ✅ aprobado** — spec en `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`, falta implementar · P3-P4 pendientes
+**Estado:** P0 ✅, P1 ✅ y **P2 (tienda) ✅ implementado y verificado en prod (2026-06-14)** · P3-P4 pendientes
 **Autor del análisis:** Claude (revisión en 2 pasadas + cruce con specs)
 
 ---
@@ -45,7 +45,7 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 | Fase | Archivos a releer al retomar |
 |---|---|
 | P1 | `hooks/useCart.js`, `App.jsx`, `Layout.jsx`, `StorePage.jsx`, `CheckoutPage.jsx`, `useAdminProducts.js`, `useOrders.js` + la nueva migración de esquema |
-| P2 🎨 | `StorePage.jsx`, `ProductGrid.jsx`, `ProductCard.jsx`, `CheckoutPage.jsx`, `Layout.jsx` (nav) + RPCs `buscar_pedido_abierto` / `agregar_a_pedido` |
+| ~~P2~~ ✅ HECHO (2026-06-14) | (ya en prod — no requiere releer) |
 | P3 🎨 | `AdminOrdersPage.jsx`, `OrderCard.jsx`, `OrderList.jsx`, `useOrders.js` + RPCs de edición |
 | P4 🎨 | nueva `AdminReportsPage.jsx` + RPC/vistas de reporte |
 
@@ -258,8 +258,9 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 - ✅ Manejo de errores (#6): `useAdminProducts` y `useOrders` exponen `error`; banners en `AdminProductsPage`/`AdminOrdersPage`; el form de producto no se cierra si falla el guardado.
 - *Verificado:* 19/19 tests (`vitest run`) + `vite build` OK. Nota: `delivered_at` se poblará cuando P3 implemente `marcar_entregado` (hoy `deliver` sigue con `UPDATE` directo).
 
-**P2 — Tienda (cliente)** 🎨 — **DISEÑO ✅ aprobado (2026-06-13)**
-- **Spec (fuente de verdad):** `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`. Siguiente: plan (`writing-plans`) → implementar. Migración nueva = `009`.
+**P2 — Tienda (cliente)** ✅ **HECHO y verificado en prod (2026-06-14)**
+- **Migración `009_p2_tienda.sql` aplicada** en Supabase (Management API): `orders.delivery_date` (NOT NULL + backfill) + índice `idx_orders_phone_date_status`; tabla `app_settings` (key/value + RLS lectura pública/escritura admin + seed `order_cutoff_time=20:00`, `cancel_cutoff_time=06:00`, `order_weekdays=1..7`); `crear_pedido` rehecha a **5 args** (drop del 4-arg) con validación tel 10 díg + fecha; **RPC nuevas** `buscar_pedido_abierto(phone,date)`, `agregar_a_pedido(order_id,items)`, `listar_pedidos_activos(phone)`, `cancelar_pedido_cliente(order_number,phone)` (todas `SECURITY DEFINER`, `search_path=''`, GRANT a `anon`+`authenticated`). Verificado: esquema + `app_settings` legible anónimo + `orders` cerrada + smoke real crear→buscar→listar→cancelar (stock restaurado) + privacidad (sin nombre/tel/notas en lookups).
+- **Frontend desplegado** (Vercel, `emilse-aguas.vercel.app`). Archivos nuevos: `lib/catalog.js`, `lib/deliveryDates.js`, `lib/whatsapp.js`, `hooks/useAppSettings.js`, componentes `store/{ViewToggle,CatalogToolbar,ProductListItem,ProductQuantityModal,DeliveryDatePicker,OpenOrderChoice,ActiveOrdersList,CustomerOrderDetail}.jsx`, `pages/MyOrdersPage.jsx` (ruta `/mis-pedidos`). Reescritos: `StorePage`, `ProductCard`/`ProductGrid`, `CheckoutForm`, `CheckoutPage`, `Cart`, `Layout`, `CartContext` (+`setItemQuantity`). Eliminado el FAB `WhatsAppLink.jsx`. Suite 74/74 verde. Spec/plan: `docs/superpowers/{specs,plans}/2026-06-13-p2-tienda-cliente*`.
 - Catálogo: Lista (principal) / Tarjetas (toggle persistente) + buscador + chips de categoría + orden alfabético + estado "agregado" verde. Modal de cantidad = hoja inferior.
 - Navegación nueva: 4 tabs (Tienda · Carrito · Mi pedido · Ayuda); Admin discreto en header; WhatsApp/Ayuda sin FAB suelto.
 - Carrito en 2 pantallas (lista editable → datos + fecha). Teléfono: 10 dígitos.

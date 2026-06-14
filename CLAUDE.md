@@ -54,17 +54,14 @@ En el .env.local esta el token de supabase para que hagas los edits automaticame
 
 > Esta sección la mantiene Claude al día. Indica qué leer al iniciar una sesión nueva para trabajar, **sin releer todo el código**.
 
-**Estás en: P2 (Tienda/cliente) — diseño ✅ + plan ✅ aprobados y commiteados; falta IMPLEMENTAR.** Rama de trabajo: **`feat/p2-tienda-cliente`** (asegúrate de estar en ella: `git checkout feat/p2-tienda-cliente`).
+**Estás en: P2 ✅ HECHO y verificado en prod (2026-06-14) — mergeado a `main`, desplegado en Vercel, migración `009` aplicada. Siguiente: P3 (Admin: gestión de pedidos).** Empieza en `main` y crea rama nueva para P3 (p.ej. `feat/p3-admin-pedidos`).
 
-**Lee SOLO esto (el plan trae TODO el código inline — NO releas el `src/`):**
-1. `docs/superpowers/plans/2026-06-13-p2-tienda-cliente.md` — **plan de implementación (fuente de verdad para ejecutar).** Trae, por tarea, el test y la implementación completos.
-2. (Solo si necesitas contexto de decisiones) `docs/superpowers/specs/2026-06-13-p2-tienda-cliente-design.md`. La memoria del proyecto se auto-carga.
+**Para arrancar P3, lee:**
+1. `docs/MANUAL-aguas-emi.md` §6 (roadmap, entrada **P3 — Admin: gestión de pedidos**) y §7 (decisiones: total personalizado = override; recálculo siempre al editar; "venta" = solo `delivered`).
+2. Archivos a releer (de la tabla §"qué releer por fase", fila P3): `AdminOrdersPage.jsx`, `OrderCard.jsx`, `OrderList.jsx`, `useOrders.js` + diseñar las RPC de edición (`agregar_a_pedido` ya existe de P2; faltan `quitar_de_pedido`, `marcar_entregado`, edición de total). La memoria del proyecto se auto-carga.
+3. Si P3 lleva diseño/visual, usar `superpowers:brainstorming` → spec → plan antes de implementar.
 
-**Siguiente paso:** ejecutar el plan con la skill `superpowers:subagent-driven-development` (o `executing-plans`), tarea por tarea, **sin releer el código fuente** (el plan ya lo contiene).
-
-**Cadencia acordada:** "dejarlo correr" — las fases de código (rama feature, reversible) corren de corrido con la doble revisión por tarea como control. **PARAR siempre antes de tocar producción.**
-
-**⚠️ Cutover de despliegue (crítico):** la migración `009` hace `DROP` del `crear_pedido` de 4 args y pone `delivery_date NOT NULL` → **rompería el checkout en vivo si se aplica antes** de desplegar el frontend nuevo (solo hay un proyecto Supabase, sin staging). Por eso: escribir el archivo de migración (Tarea 1.1) ahora, desarrollar todo el frontend con tests mockeados (Fases 2-4), y **aplicar la migración a prod JUNTO con el deploy del frontend al final** (Tareas 1.2 + 5.4), en una sola ventana y **con aprobación explícita**.
+**Cadencia acordada (sigue vigente):** "dejarlo correr" — fases de código en rama feature corren de corrido con la revisión por tarea como control. **PARAR siempre antes de tocar producción** y pedir aprobación explícita para el cutover (migración + deploy).
 
 ---
 
