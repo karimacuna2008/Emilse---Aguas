@@ -54,12 +54,12 @@ En el .env.local esta el token de supabase para que hagas los edits automaticame
 
 > Esta sección la mantiene Claude al día. Indica qué leer al iniciar una sesión nueva para trabajar, **sin releer todo el código**.
 
-**Estás en: P2 ✅ HECHO y verificado en prod (2026-06-14) — mergeado a `main`, desplegado en Vercel, migración `009` aplicada. Siguiente: P3 (Admin: gestión de pedidos).** Empieza en `main` y crea rama nueva para P3 (p.ej. `feat/p3-admin-pedidos`).
+**Estás en: P3 ✅ HECHO y verificado en prod (2026-06-14) — mergeado a `main`, desplegado en Vercel, migración `010` aplicada. Siguiente: P4 (BI / Dashboard de ventas).** Empieza en `main` y crea rama nueva para P4 (p.ej. `feat/p4-bi-ventas`).
 
-**Para arrancar P3, lee:**
-1. `docs/MANUAL-aguas-emi.md` §6 (roadmap, entrada **P3 — Admin: gestión de pedidos**) y §7 (decisiones: total personalizado = override; recálculo siempre al editar; "venta" = solo `delivered`).
-2. Archivos a releer (de la tabla §"qué releer por fase", fila P3): `AdminOrdersPage.jsx`, `OrderCard.jsx`, `OrderList.jsx`, `useOrders.js` + diseñar las RPC de edición (`agregar_a_pedido` ya existe de P2; faltan `quitar_de_pedido`, `marcar_entregado`, edición de total). La memoria del proyecto se auto-carga.
-3. Si P3 lleva diseño/visual, usar `superpowers:brainstorming` → spec → plan antes de implementar.
+**Para arrancar P4, lee:**
+1. `docs/MANUAL-aguas-emi.md` §3.2-D (BI), §6 (entrada **P4 — BI / Dashboard de ventas**) y §7 (decisión: "venta" = solo `delivered`; `delivered_at` ya se puebla con `marcar_entregado`).
+2. Archivos a releer (tabla §"qué releer por fase", fila P4): diseñar nueva `AdminReportsPage.jsx` + RPC/vistas de reporte; `useOrders.js` y `lib/pendingSummary.js` como patrón de agregación; `orders.delivered_at` y `products.category` ya existen (de P1). La memoria del proyecto se auto-carga.
+3. P4 es 🎨: usar `superpowers:brainstorming` (con visual companion para gráficas/KPIs) → spec → plan antes de implementar.
 
 **Cadencia acordada (sigue vigente):** "dejarlo correr" — fases de código en rama feature corren de corrido con la revisión por tarea como control. **PARAR siempre antes de tocar producción** y pedir aprobación explícita para el cutover (migración + deploy).
 

@@ -1,7 +1,7 @@
 # Manual de Trabajo — Aguas de Emi
 
 **Fecha:** 2026-06-13
-**Estado:** P0 ✅, P1 ✅ y **P2 (tienda) ✅ implementado y verificado en prod (2026-06-14)** · P3-P4 pendientes
+**Estado:** P0 ✅, P1 ✅, P2 (tienda) ✅ y **P3 (Admin: gestión de pedidos + config) ✅ implementado y verificado en prod (2026-06-14)** · P4 pendiente
 **Autor del análisis:** Claude (revisión en 2 pasadas + cruce con specs)
 
 ---
@@ -46,8 +46,8 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 |---|---|
 | P1 | `hooks/useCart.js`, `App.jsx`, `Layout.jsx`, `StorePage.jsx`, `CheckoutPage.jsx`, `useAdminProducts.js`, `useOrders.js` + la nueva migración de esquema |
 | ~~P2~~ ✅ HECHO (2026-06-14) | (ya en prod — no requiere releer) |
-| P3 🎨 | `AdminOrdersPage.jsx`, `OrderCard.jsx`, `OrderList.jsx`, `useOrders.js` + RPCs de edición |
-| P4 🎨 | nueva `AdminReportsPage.jsx` + RPC/vistas de reporte |
+| ~~P3~~ ✅ HECHO (2026-06-14) | (ya en prod — no requiere releer) |
+| P4 🎨 | nueva `AdminReportsPage.jsx` + RPC/vistas de reporte; `useOrders.js` (`delivered_at` ya poblado por `marcar_entregado`); `lib/pendingSummary.js` (patrón de agregación) |
 
 ---
 
@@ -269,10 +269,11 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 - Mi pedido: `listar_pedidos_activos(phone)` (todos los activos) → detalle con ayuda (WhatsApp + ID) y cancelar cliente (`cancelar_pedido_cliente`).
 - *Dependencias:* P1 (CartContext, RPCs).
 
-**P3 — Admin: gestión de pedidos** 🎨
-- Pedidos como tarjetas → panel de edición (agregar/quitar/cancelar/entregar) con sus RPC.
-- Resumen "por entregar" arriba. Total personalizado (override).
-- *Dependencias:* P1 (`delivered_at`, `total_personalizado`, RPCs de edición).
+**P3 — Admin: gestión de pedidos + configuración** ✅ **HECHO y verificado en prod (2026-06-14)**
+- **Migración `010_p3_admin.sql`** aplicada (Management API): RPC `quitar_de_pedido`, `marcar_entregado` (puebla `delivered_at`), `set_total_pedido`, `recalcular_total_pedido` (todas `SECURITY DEFINER`, `search_path=''`, GRANT `authenticated`); **drop de `admin update orders`** → toda escritura de pedidos vía RPC. Verificado: 4 funcs presentes + política ausente + smoke (rollback) de quitar/override/recalcular/entregar.
+- **Front desplegado** (Vercel, mergeado a `main`): lista admin **por fecha de entrega** (`OrderDateNav` default hoy / siguiente con pendientes), resumen **"Por entregar"** abatible (mosaico, agregación en cliente `lib/pendingSummary.js`), tarjetas compactas → panel `AdminOrderDetailPage` (`OrderItemEditor` con stepper grande, `AddProductPicker`, `TotalOverride` 3 estados), historial detrás de enlace. **Configuración** `AdminSettingsPage` (`/admin/configuracion`, ⚙️): edita `app_settings` (días + cortes). `useOrders` reescrito a acciones vía RPC. Suite 107/107.
+- **Decisiones:** resumen "por entregar" por **fecha** (no global); agregación en **cliente** (sin RPC `resumen_pendientes`); quitar último artículo → **ofrecer cancelar**; entregar **definitivo**; alcance = pedidos **+ config**.
+- *Dependencias:* P1 (`delivered_at`, `total_personalizado`), P2 (`delivery_date`, `app_settings`, `agregar_a_pedido`).
 
 **P4 — BI / Dashboard de ventas** 🎨
 - Reportes por producto/categoría/fecha. KPIs. Filtros.
@@ -293,10 +294,18 @@ Este es el **manual maestro** para retomar el proyecto en otra sesión. Reúne t
 - BI → "venta" = **solo pedidos `delivered`**; los `pending` van aparte como pipeline (§3.2-D).
 - Navegación → **se rediseña** junto con las vistas nuevas (no se mantiene la barra actual tal cual). El diseño concreto entra en la sesión visual.
 
-**Abiertas para la próxima sesión ❓ (todas requieren visual companion):**
-- Diseño visual de: vistas Tarjetas/Lista + modal de cantidad, panel de edición de pedido, dashboard BI.
-- Rediseño concreto de la **navegación** (decidido que se rediseña; falta el diseño).
-- BI: métricas exactas y agrupaciones a mostrar.
+**Tomadas (sesión 2026-06-14, P3):**
+- Alcance P3 = gestión de pedidos **+ editor de configuración** (`app_settings`: días + cortes).
+- Resumen "por entregar" = **por fecha de entrega** (no global): default hoy; si hoy no tiene pendientes, salta a la siguiente fecha con pendientes; navega solo entre fechas con pedidos. Es "qué entregar", no inventario.
+- Agregación del resumen → **en cliente** (`lib/pendingSummary.js`), sin la RPC `resumen_pendientes` sugerida (YAGNI: el admin ya descarga los pedidos).
+- **Quitar el último artículo** de un pedido → la UI **ofrece cancelar el pedido** (vía `cancelar_pedido`), no lo deja vacío.
+- **Marcar entregado es definitivo** (no hay "des-entregar" en P3).
+- RLS: se elimina `admin update orders`; toda escritura de pedidos pasa por RPC `SECURITY DEFINER`.
+- Panel de edición = **pantalla completa** (`/admin/pedidos/:id`); controles de artículo con stepper grande (fila propia).
+
+**Abiertas para la próxima sesión ❓ (P4 — BI, requiere visual companion):**
+- Diseño visual del **dashboard BI** (gráficas, KPIs, layout).
+- BI: métricas exactas y agrupaciones a mostrar (por producto/categoría/fecha; comparativos).
 
 ---
 
