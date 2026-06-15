@@ -61,3 +61,14 @@ export function isCancelAllowed(deliveryDateISO, now, config) {
   cutoff.setHours(h, m, 0, 0)
   return now < cutoff
 }
+
+// ── Helpers de presentación en español (admin) ──
+const DIAS_ES  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado']
+const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+
+export function parseISO(iso) {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+export function formatWeekday(iso) { return DIAS_ES[parseISO(iso).getDay()] }
+export function formatLongDate(iso) { const dt = parseISO(iso); return `${dt.getDate()} ${MESES_ES[dt.getMonth()]}` }

@@ -85,3 +85,18 @@ describe('isCancelAllowed', () => {
     expect(isCancelAllowed('2026-06-16', now, cfg)).toBe(false)
   })
 })
+
+import { parseISO, formatWeekday, formatLongDate } from './deliveryDates'
+
+describe('helpers admin de fecha', () => {
+  it('parseISO crea fecha local sin corrimiento UTC', () => {
+    const d = parseISO('2026-06-14')
+    expect(d.getFullYear()).toBe(2026); expect(d.getMonth()).toBe(5); expect(d.getDate()).toBe(14)
+  })
+  it('formatWeekday devuelve el día en español', () => {
+    expect(formatWeekday('2026-06-14')).toBe('domingo') // 14 jun 2026 = domingo
+  })
+  it('formatLongDate devuelve "14 jun"', () => {
+    expect(formatLongDate('2026-06-14')).toBe('14 jun')
+  })
+})
