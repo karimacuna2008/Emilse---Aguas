@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { mapOrderError } from '../lib/orderErrors'
 
 export function useOrders() {
   const [orders, setOrders]   = useState([])
@@ -18,19 +19,22 @@ export function useOrders() {
 
   useEffect(() => { fetch() }, [fetch])
 
-  async function deliver(orderId) {
-    const { error } = await supabase.from('orders').update({ status: 'delivered' }).eq('id', orderId)
-    if (error) { setError(error.message); return { error } }
+  // Ejecuta una RPC que devuelve JSONB {success|error}. Refresca en éxito.
+  async function callRpc(fn, args) {
+    const { data, error } = await supabase.rpc(fn, args)
+    if (error) { setError(error.message); return { error: error.message } }
+    if (data?.error) { setError(mapOrderError(data.error, data)); return { error: data.error } }
+    setError(null)
     await fetch()
-    return { error: null }
+    return { error: null, data }
   }
 
-  async function cancel(orderId) {
-    const { error } = await supabase.rpc('cancelar_pedido', { p_order_id: orderId })
-    if (error) { setError(error.message); return { error } }
-    await fetch()
-    return { error: null }
-  }
+  const addItems      = (orderId, items)          => callRpc('agregar_a_pedido',        { p_order_id: orderId, p_items: items })
+  const removeItem    = (orderId, productId, qty) => callRpc('quitar_de_pedido',        { p_order_id: orderId, p_product_id: productId, p_quantity: qty })
+  const markDelivered = (orderId)                 => callRpc('marcar_entregado',        { p_order_id: orderId })
+  const setTotal      = (orderId, total)          => callRpc('set_total_pedido',        { p_order_id: orderId, p_total: total })
+  const recalcTotal   = (orderId)                 => callRpc('recalcular_total_pedido', { p_order_id: orderId })
+  const cancel        = (orderId)                 => callRpc('cancelar_pedido',         { p_order_id: orderId })
 
-  return { orders, loading, error, deliver, cancel }
+  return { orders, loading, error, fetch, addItems, removeItem, markDelivered, setTotal, recalcTotal, cancel }
 }

@@ -19,5 +19,16 @@ export function useAppSettings() {
     })
   }, [])
 
-  return { config: config ?? parseAppSettings([]), loading }
+  async function saveSettings({ weekdays, cutoffTime, cancelTime }) {
+    const rows = [
+      { key: 'order_weekdays',     value: [...weekdays].sort((a, b) => a - b).join(',') },
+      { key: 'order_cutoff_time',  value: cutoffTime },
+      { key: 'cancel_cutoff_time', value: cancelTime },
+    ]
+    const { error } = await supabase.from('app_settings').upsert(rows)
+    if (!error) { _cache = { weekdays, cutoffTime, cancelTime }; setConfig(_cache) }
+    return { error }
+  }
+
+  return { config: config ?? parseAppSettings([]), loading, saveSettings }
 }
