@@ -5,6 +5,8 @@ import MyOrdersPage      from './pages/MyOrdersPage'
 import OrderStatusPage   from './pages/OrderStatusPage'
 import AdminLoginPage    from './pages/AdminLoginPage'
 import AdminOrdersPage   from './pages/AdminOrdersPage'
+import AdminOrderDetailPage from './pages/AdminOrderDetailPage'
+import AdminSettingsPage from './pages/AdminSettingsPage'
 import AdminProductsPage from './pages/AdminProductsPage'
 import ProtectedRoute    from './components/admin/ProtectedRoute'
 import Layout            from './components/shared/Layout'
@@ -24,6 +26,20 @@ export default function App() {
             <ProtectedRoute>
               <Layout showAdmin>
                 <AdminOrdersPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pedidos/:id" element={
+            <ProtectedRoute>
+              <Layout showAdmin>
+                <AdminOrderDetailPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/configuracion" element={
+            <ProtectedRoute>
+              <Layout showAdmin>
+                <AdminSettingsPage />
               </Layout>
             </ProtectedRoute>
           } />
